@@ -49,5 +49,52 @@ namespace WebApplication1
             rpt.SetDataSource(ds.Tables[0]); //pass data to report
             CrystalReportViewer.ReportSource = rpt; //let CR know which report to display
         }
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+            var param = "ALFKI"; //this id may come from query string and we use it as parameter in sql query
+
+            var connectionString = ConfigurationManager.ConnectionStrings["NorthwindConnectionString"].ConnectionString; //check you connection in web.config
+
+            var dt = new DataTable();
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                using (var adapter = new SqlDataAdapter("CustOrderHist", connection))
+                {
+                    adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+                    adapter.SelectCommand.Parameters.AddWithValue("@CustomerID", param);
+                    adapter.Fill(dt);
+                }
+            }
+
+            var rpt = new CrystalReport1(); //create report
+            rpt.SetDataSource(dt); //pass data to report
+            CrystalReportViewer.ReportSource = rpt; //let CR know which report to display
+        }
+
+        protected void Button1_Click2(object sender, EventArgs e)
+        {
+            CrystalReportViewer.ReportSource = null;
+            var param = "ALFKI"; //this id may come from query string and we use it as parameter in sql query
+
+            var connectionString = ConfigurationManager.ConnectionStrings["NorthwindConnectionString2"].ConnectionString; //check you connection in web.config
+
+            var dt = new DataTable();
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                using (var adapter = new SqlDataAdapter("CustOrderHist", connection))
+                {
+                    adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+                    adapter.SelectCommand.Parameters.AddWithValue("@CustomerID", param);
+                    adapter.Fill(dt);
+                }
+            }
+
+            var rpt = new CrystalReport1(); //create report
+            rpt.SetDataSource(dt); //pass data to report
+            CrystalReportViewer.ReportSource = rpt; //let CR know which report to display
+        }
     }
 }
