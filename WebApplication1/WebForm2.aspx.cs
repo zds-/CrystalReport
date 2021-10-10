@@ -10,18 +10,12 @@ namespace WebApplication1
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            CrystalReportViewer1.ReportSource = null;
-            Cache.Remove("CrystalReport1");
-            Cache.Remove("CrystalReport2");
-            Cache.Remove("CrystalReport3");
         }
 
         protected void Button1_Click(object sender, EventArgs e)
         {
-            Cache.Remove("CrystalReport1");
-            Cache.Remove("CrystalReport2");
-            Cache.Remove("CrystalReport3");
-            CrystalReportViewer1.ReportSource = null;
+            Label1.Text = "Data from Norwind";
+
             var param = "ALFKI";
 
             var rpt = new CrystalReport1(); //create report
@@ -33,64 +27,62 @@ namespace WebApplication1
 
         protected void Button2_Click(object sender, EventArgs e)
         {
-            Cache.Remove("CrystalReport1");
-            Cache.Remove("CrystalReport2");
-            Cache.Remove("CrystalReport3");
-            CrystalReportViewer1.ReportSource = null;
-
-
-            const string dbName = "Northwind2";
-            var crConnectionInfo = new ConnectionInfo()
-            {
-                ServerName = "localhost, 1433",
-                DatabaseName = dbName,
-                UserID = "sa",
-                Password = "PaSSword!2020"
-            };
+            Label1.Text = "Data from Northwind2";
 
             var param = "ANATR";
 
             var rpt = new CrystalReport1(); //create report
-
-            rpt.DataSourceConnections.Clear();
-            rpt.DataSourceConnections[0].SetConnection("localhost, 1433", "Northwind2", "sa", "PaSSword!2020");
-
+           
+            SetConnection(rpt, "Northwind2", "localhost, 1433", "sa", "PaSSword!2020");
             rpt.SetParameterValue("@CustomerID", param);
-
-            var crTables = rpt.Database.Tables;
-
-            for (int i = 0; i < crTables.Count; i++)
-            {
-                var crTable = crTables[i];
-                var crTableLogOnInfo = crTable.LogOnInfo;
-
-                crTableLogOnInfo.ConnectionInfo = crConnectionInfo;
-
-                crTable.ApplyLogOnInfo(crTableLogOnInfo);
-
-                //If your DatabaseName is changing at runtime, specify the table location. For example, when you are reporting off of a Northwind database 
-                //on SQL server you should have the following line of code:
-
-                crTable.Location = dbName + ".dbo." + crTable.Location.Substring(crTable.Location.LastIndexOf(".") + 1);
-
-            };
 
             CrystalReportViewer1.ReportSource = rpt; //let CR know which report to display
         }
 
         protected void Button3_Click(object sender, EventArgs e)
         {
-            Cache.Remove("CrystalReport1");
-            Cache.Remove("CrystalReport2");
-            Cache.Remove("CrystalReport3");
-            CrystalReportViewer1.ReportSource = null;
+            Label1.Text = "Export data from Northwind2";
+
             var param = "ALFKI";
 
             var rpt = new CrystalReport1(); //create report
             SetConnection(rpt, "Northwind2", "localhost, 1433", "sa", "PaSSword!2020");
             rpt.SetParameterValue("@CustomerID", param);
 
-            CrystalReportViewer1.ReportSource = rpt; //let CR know which report to display
+            //CrystalReportViewer1.ReportSource = rpt; //let CR know which report to display
+
+            const string fileName = "csharp.net-informations.pdf";
+            var pdfPath = Server.MapPath("~/PdfFiles/" + fileName);
+
+            ExportToPdf(rpt, pdfPath);
+
+            Response.ContentType = "application/pdf";
+            Response.AppendHeader("Content-Disposition", "attachment; filename=" + fileName);
+            Response.TransmitFile(pdfPath);
+            Response.End();
+        }
+
+        void ExportToPdf(ReportClass cryRpt, string path)
+        {
+            try
+            {
+                var CrDiskFileDestinationOptions = new DiskFileDestinationOptions
+                {
+                    DiskFileName = path
+                };
+
+                var options = cryRpt.ExportOptions;
+
+                options.ExportDestinationType = ExportDestinationType.DiskFile;
+                options.ExportFormatType = ExportFormatType.PortableDocFormat;
+                options.DestinationOptions = CrDiskFileDestinationOptions;
+
+                cryRpt.Export();
+            }
+            catch (Exception ex)
+            {
+                Label1.Text = ex.ToString();
+            }
         }
 
         private static void SetConnection(ReportDocument report, string databaseName, string serverName, string userName, string password)

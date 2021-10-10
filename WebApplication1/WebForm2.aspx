@@ -13,8 +13,8 @@
         <div>
         <asp:Button ID="Button1" runat="server" Text="SP Norwind" OnClick="Button1_Click" />
         <asp:Button ID="Button2" runat="server" Text="SP Norwind2" OnClick="Button2_Click" />
-        <asp:Button ID="Button3" runat="server" Text="SP Norwind22" OnClick="Button3_Click" />
-             
+        <asp:Button ID="Button3" runat="server" Text="SP Norwind2 and export to pdf" OnClick="Button3_Click" />
+            <asp:Label ID="Label1" runat="server" Text=""></asp:Label>
             <CR:CrystalReportViewer ID="CrystalReportViewer1" runat="server" AutoDataBind="true" />
              
         </div>
