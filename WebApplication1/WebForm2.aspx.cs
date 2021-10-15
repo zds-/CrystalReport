@@ -1,6 +1,7 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using System;
+using System.Net;
 
 namespace WebApplication1
 {
@@ -60,6 +61,31 @@ namespace WebApplication1
             Response.AppendHeader("Content-Disposition", "attachment; filename=" + fileName);
             Response.TransmitFile(pdfPath);
             Response.End();
+        }
+
+        protected void Button4_Click(object sender, EventArgs e)
+        {
+            Label1.Text = "Export data from Northwind2";
+
+            var param = "ALFKI";
+
+            var rpt = new CrystalReport1(); //create report
+            SetConnection(rpt, "Northwind2", "localhost, 1433", "sa", "PaSSword!2020");
+            rpt.SetParameterValue("@CustomerID", param);
+
+            const string fileName = "csharp.net-informations.pdf";
+            var pdfPath = Server.MapPath("~/PdfFiles/" + fileName);
+
+            ExportToPdf(rpt, pdfPath);
+
+            var webClient = new WebClient();
+            var fileBuffer = webClient.DownloadData(pdfPath);
+            if (fileBuffer != null)
+            {
+                Response.ContentType = "application/pdf";
+                Response.AddHeader("Content-Disposition", "inline; filename=" + fileName);
+                Response.BinaryWrite(fileBuffer);
+            }
         }
 
         void ExportToPdf(ReportClass cryRpt, string path)
@@ -128,6 +154,8 @@ namespace WebApplication1
 
             table.Location = databaseName + "." + "dbo" + "." + table.Location;
         }
+
+       
     }
 }
 /*
